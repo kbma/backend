@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Chat Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #chat-messages {
+      height: 200px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chat-messages"></div>
+
+<form id="chat-form">
+  <input type="text" id="message" placeholder="Votre message" autocomplete="off">
+  <button type="submit">Envoyer</button>
+</form>
+
+<!-- Script Socket.IO côté client -->
+<script src="https://cdn.socket.io/4.1.3/socket.io.min.js"></script>
+
+<script>
+  // Connexion au serveur WebSocket
+  const socket = io();
+  const chatForm = document.getElementById('chat-form');
+  const chatMessages = document.getElementById('chat-messages');
+
+  // Connection établie
+  socket.on('connect', () => {
+    console.log('Connexion établie avec le serveur');
+  });
+
+  // Écouter les messages du serveur
+  socket.on('chatMessage', (message) => {
+    appendMessage(message);
+  });
+
+  // Soumettre le formulaire de chat
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const messageInput = document.getElementById('message');
+    const message = messageInput.value.trim();
+
+    if (message !== '') {
+      // Envoyer le message au serveur
+      socket.emit('chatMessage', message);
+
+      // Ajouter le message à la liste des messages
+      appendMessage(`Moi : ${message}`);
+
+      // Effacer le champ de saisie
+      messageInput.value = '';
+    }
+  });
+
+  // Fonction pour ajouter un message à la liste
+  function appendMessage(message) {
+    const messageElement = document.createElement('div');
+    messageElement.textContent = message;
+    chatMessages.appendChild(messageElement);
+
+    // Faire défiler vers le bas pour afficher le dernier message
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+</script>
+
+</body>
+</html>
