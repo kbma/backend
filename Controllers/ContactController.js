@@ -93,9 +93,40 @@ const supprimerContact = async (req, res) => {
 
 
 
+const rechercheContact = async (req, res) => {
+    try {
+        const { nom, tel } = req.query;
+
+        if (!nom && !tel) {
+            return res.status(400).json({ message: 'Le nom ou le numéro de téléphone est requis pour la recherche.' });
+        }
+
+        let rechercheParams = {};
+
+        if (nom) {
+            rechercheParams.nom = { $regex: new RegExp(nom, 'i') }; // Recherche insensible à la casse
+        }
+
+        if (tel) {
+            rechercheParams.tel = tel;
+        }
+
+        const resultatsRecherche = await ContactModel.find(rechercheParams).exec();
+
+        return res.status(200).json(resultatsRecherche);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Erreur interne du serveur.' });
+    }
+};
+
+
+
+
   module.exports={
     listerContact,
     ajouterContact,
     modifierContact,
-    supprimerContact
+    supprimerContact,
+    rechercheContact
   }
